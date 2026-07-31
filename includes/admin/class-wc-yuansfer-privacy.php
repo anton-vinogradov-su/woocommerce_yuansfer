@@ -394,6 +394,10 @@ class WC_Yuansfer_Privacy extends WC_Abstract_Privacy {
 	 */
 	public function is_retention_expired($created_date) {
 		$retention  = wc_parse_relative_date_option(get_option('woocommerce_gateway_yuansfer_retention'));
+		// wc_parse_relative_date_option() can return an empty string for 'number' (no
+		// retention window configured). PHP 7 silently coerced '' * int to 0; PHP 8
+		// throws a TypeError, so cast explicitly to preserve the original behavior.
+		$retention['number'] = (int) $retention['number'];
 		$is_expired = false;
 		$time_span  = time() - strtotime($created_date);
 		if (empty($retention) || empty($created_date)) {
