@@ -5,14 +5,23 @@
  * Description: Provides a Yuansfer Payment Gateway
  * Author: Yuansfer
  * Author URI: https://www.yuansfer.com/
- * Version: 3.0.6
+ * Version: 3.0.7
  * WC requires at least: 3.0
- * WC tested up to: 6.0.3
+ * WC tested up to: 10.9.1
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
+
+/**
+ * Declare compatibility with WooCommerce features.
+ */
+add_action('before_woocommerce_init', function () {
+    if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+    }
+});
 
 // Check if the WooCommerce is installed and activate
 if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins',get_option('active_plugins')))) {
@@ -34,7 +43,7 @@ function woocommerce_yuansfer_init()
     /**
      * Required minimums and constants
      */
-    define('WC_YUANSFER_VERSION', '3.0.3');
+    define('WC_YUANSFER_VERSION', '3.0.7');
     define('WC_YUANSFER_MIN_PHP_VER', '5.6.0');
     define('WC_YUANSFER_MIN_WC_VER', '3.0');
     define('WC_YUANSFER_MAIN_FILE', __FILE__);

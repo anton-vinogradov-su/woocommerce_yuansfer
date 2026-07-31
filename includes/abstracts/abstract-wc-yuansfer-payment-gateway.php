@@ -697,9 +697,7 @@ abstract class WC_Yuansfer_Payment_Gateway extends WC_Payment_Gateway {
 		$source_object   = false;
 
 		if ($order) {
-			$order_id = $order->get_id();
-
-			$yuansfer_customer_id = get_post_meta($order_id, '_yuansfer_customer_id', true);
+			$yuansfer_customer_id = $order->get_meta('_yuansfer_customer_id', true);
 
 			if ($yuansfer_customer_id) {
 				$yuansfer_customer->set_id($yuansfer_customer_id);

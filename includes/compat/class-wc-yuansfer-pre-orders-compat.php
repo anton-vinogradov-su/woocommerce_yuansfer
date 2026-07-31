@@ -22,10 +22,10 @@ class WC_Yuansfer_Pre_Orders_Compat extends WC_Yuansfer_Payment_Gateway {
 	 * @param object $order
 	 */
 	public function remove_order_source_before_retry($order) {
-		$order_id = $order->get_id();
-		delete_post_meta($order_id, '_yuansfer_source_id');
+		$order->delete_meta_data('_yuansfer_source_id');
 		// For BW compat will remove in the future.
-		delete_post_meta($order_id, '_yuansfer_card_id');
+		$order->delete_meta_data('_yuansfer_card_id');
+		$order->save();
 	}
 
 	/**
@@ -33,8 +33,8 @@ class WC_Yuansfer_Pre_Orders_Compat extends WC_Yuansfer_Payment_Gateway {
 	 * @param  object $order
 	 */
 	public function remove_order_customer_before_retry($order) {
-		$order_id = $order->get_id();
-		delete_post_meta($order_id, '_yuansfer_customer_id');
+		$order->delete_meta_data('_yuansfer_customer_id');
+		$order->save();
 	}
 
 	/**

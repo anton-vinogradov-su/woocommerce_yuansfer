@@ -91,10 +91,9 @@ class WC_Yuansfer_Helper {
 			return false;
 		}
 
-		$order_id = $order->get_id();
-
-		delete_post_meta($order_id, self::META_NAME_FEE);
-		delete_post_meta($order_id, self::LEGACY_META_NAME_FEE);
+		$order->delete_meta_data(self::META_NAME_FEE);
+		$order->delete_meta_data(self::LEGACY_META_NAME_FEE);
+		$order->save();
 	}
 
 	/**
@@ -147,10 +146,9 @@ class WC_Yuansfer_Helper {
 			return false;
 		}
 
-		$order_id = $order->get_id();
-
-		delete_post_meta($order_id, self::META_NAME_NET);
-		delete_post_meta($order_id, self::LEGACY_META_NAME_NET);
+		$order->delete_meta_data(self::META_NAME_NET);
+		$order->delete_meta_data(self::LEGACY_META_NAME_NET);
+		$order->save();
 	}
 
 	/**
@@ -344,12 +342,15 @@ class WC_Yuansfer_Helper {
      * @return WC_Order|false
 	 */
 	public static function get_order_by_source_id($source_id) {
-		global $wpdb;
+		$order_ids = wc_get_orders(array(
+			'meta_key'   => '_yuansfer_source_id',
+			'meta_value' => $source_id,
+			'limit'      => 1,
+			'return'     => 'ids',
+		));
 
-		$order_id = $wpdb->get_var($wpdb->prepare("SELECT DISTINCT ID FROM $wpdb->posts as posts LEFT JOIN $wpdb->postmeta as meta ON posts.ID = meta.post_id WHERE meta.meta_value = %s AND meta.meta_key = %s", $source_id, '_yuansfer_source_id'));
-
-		if (!empty($order_id)) {
-			return wc_get_order($order_id);
+		if (!empty($order_ids)) {
+			return wc_get_order($order_ids[0]);
 		}
 
 		return false;
@@ -361,12 +362,15 @@ class WC_Yuansfer_Helper {
 	 * @param string $charge_id
 	 */
 	public static function get_order_by_charge_id($charge_id) {
-		global $wpdb;
+		$order_ids = wc_get_orders(array(
+			'meta_key'   => '_transaction_id',
+			'meta_value' => $charge_id,
+			'limit'      => 1,
+			'return'     => 'ids',
+		));
 
-		$order_id = $wpdb->get_var($wpdb->prepare("SELECT DISTINCT ID FROM $wpdb->posts as posts LEFT JOIN $wpdb->postmeta as meta ON posts.ID = meta.post_id WHERE meta.meta_value = %s AND meta.meta_key = %s", $charge_id, '_transaction_id'));
-
-		if (!empty($order_id)) {
-			return wc_get_order($order_id);
+		if (!empty($order_ids)) {
+			return wc_get_order($order_ids[0]);
 		}
 
 		return false;

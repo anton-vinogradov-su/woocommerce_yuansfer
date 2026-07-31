@@ -110,11 +110,11 @@ class WC_Yuansfer_Privacy extends WC_Abstract_Privacy {
 					'data'        => array(
 						array(
 							'name'  => __('Yuansfer payment id', 'woocommerce-yuansfer'),
-							'value' => get_post_meta($order->get_id(), '_yuansfer_source_id', true),
+							'value' => $order->get_meta('_yuansfer_source_id', true),
 						),
 						array(
 							'name'  => __('Yuansfer customer id', 'woocommerce-yuansfer'),
-							'value' => get_post_meta($order->get_id(), '_yuansfer_customer_id', true),
+							'value' => $order->get_meta('_yuansfer_customer_id', true),
 						),
 					),
 				);
@@ -175,11 +175,11 @@ class WC_Yuansfer_Privacy extends WC_Abstract_Privacy {
 					'data'        => array(
 						array(
 							'name'  => __( 'Yuansfer payment id', 'woocommerce-yuansfer' ),
-							'value' => get_post_meta( $subscription->get_id(), '_yuansfer_source_id', true ),
+							'value' => $subscription->get_meta( '_yuansfer_source_id', true ),
 						),
 						array(
 							'name'  => __( 'Yuansfer customer id', 'woocommerce-yuansfer' ),
-							'value' => get_post_meta( $subscription->get_id(), '_yuansfer_customer_id', true ),
+							'value' => $subscription->get_meta( '_yuansfer_customer_id', true ),
 						),
 					),
 				);
@@ -324,7 +324,7 @@ class WC_Yuansfer_Privacy extends WC_Abstract_Privacy {
 		$subscription    = current(wcs_get_subscriptions_for_order($order->get_id()));
 		$subscription_id = $subscription->get_id();
 
-		$yuansfer_source_id = get_post_meta($subscription_id, '_yuansfer_source_id', true);
+		$yuansfer_source_id = $subscription->get_meta('_yuansfer_source_id', true);
 
 		if (empty($yuansfer_source_id)) {
 			return array(false, false, array());
@@ -341,14 +341,22 @@ class WC_Yuansfer_Privacy extends WC_Abstract_Privacy {
 		$renewal_orders = WC_Subscriptions_Renewal_Order::get_renewal_orders($order->get_id());
 
 		foreach ($renewal_orders as $renewal_order_id) {
-			delete_post_meta($renewal_order_id, '_yuansfer_source_id');
-			delete_post_meta($renewal_order_id, '_yuansfer_refund_id');
-			delete_post_meta($renewal_order_id, '_yuansfer_customer_id');
+			$renewal_order = wc_get_order($renewal_order_id);
+
+			if (!$renewal_order) {
+				continue;
+			}
+
+			$renewal_order->delete_meta_data('_yuansfer_source_id');
+			$renewal_order->delete_meta_data('_yuansfer_refund_id');
+			$renewal_order->delete_meta_data('_yuansfer_customer_id');
+			$renewal_order->save();
 		}
 
-		delete_post_meta($subscription_id, '_yuansfer_source_id');
-		delete_post_meta($subscription_id, '_yuansfer_refund_id');
-		delete_post_meta($subscription_id, '_yuansfer_customer_id');
+		$subscription->delete_meta_data('_yuansfer_source_id');
+		$subscription->delete_meta_data('_yuansfer_refund_id');
+		$subscription->delete_meta_data('_yuansfer_customer_id');
+		$subscription->save();
 
 		return array(true, false, array(__('Yuansfer Subscription Data Erased.', 'woocommerce-yuansfer')));
 	}
@@ -360,10 +368,9 @@ class WC_Yuansfer_Privacy extends WC_Abstract_Privacy {
 	 * @return array
 	 */
 	protected function maybe_handle_order($order) {
-		$order_id           = $order->get_id();
-		$yuansfer_source_id   = get_post_meta($order_id, '_yuansfer_source_id', true);
-		$yuansfer_refund_id   = get_post_meta($order_id, '_yuansfer_refund_id', true);
-		$yuansfer_customer_id = get_post_meta($order_id, '_yuansfer_customer_id', true);
+		$yuansfer_source_id   = $order->get_meta('_yuansfer_source_id', true);
+		$yuansfer_refund_id   = $order->get_meta('_yuansfer_refund_id', true);
+		$yuansfer_customer_id = $order->get_meta('_yuansfer_customer_id', true);
 
 		if (!$this->is_retention_expired($order->get_date_created()->getTimestamp())) {
 			return array(false, true, array(sprintf(__('Order ID %d is less than set retention days. Personal data retained. (Yuansfer)', 'woocommerce-yuansfer'), $order->get_id())));
@@ -373,9 +380,10 @@ class WC_Yuansfer_Privacy extends WC_Abstract_Privacy {
 			return array(false, false, array());
 		}
 
-		delete_post_meta($order_id, '_yuansfer_source_id');
-		delete_post_meta($order_id, '_yuansfer_refund_id');
-		delete_post_meta($order_id, '_yuansfer_customer_id');
+		$order->delete_meta_data('_yuansfer_source_id');
+		$order->delete_meta_data('_yuansfer_refund_id');
+		$order->delete_meta_data('_yuansfer_customer_id');
+		$order->save();
 
 		return array(true, false, array(__('Yuansfer personal data erased.', 'woocommerce-yuansfer' )));
 	}
