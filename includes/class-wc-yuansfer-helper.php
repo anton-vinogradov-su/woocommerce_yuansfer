@@ -342,6 +342,10 @@ class WC_Yuansfer_Helper {
      * @return WC_Order|false
 	 */
 	public static function get_order_by_source_id($source_id) {
+		if (empty($source_id)) {
+			return false;
+		}
+
 		$order_ids = wc_get_orders(array(
 			'meta_key'   => '_yuansfer_source_id',
 			'meta_value' => $source_id,
@@ -362,6 +366,10 @@ class WC_Yuansfer_Helper {
 	 * @param string $charge_id
 	 */
 	public static function get_order_by_charge_id($charge_id) {
+		if (empty($charge_id)) {
+			return false;
+		}
+
 		// transaction_id is a recognized WC_Order property (a dedicated column under
 		// HPOS, postmeta under the legacy datastore) — query it by name, not as
 		// generic meta, so the lookup works under either datastore.

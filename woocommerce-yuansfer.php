@@ -6,8 +6,9 @@
  * Author: Yuansfer
  * Author URI: https://www.yuansfer.com/
  * Version: 3.0.7
+ * Tested up to: 7.1.4
  * WC requires at least: 3.0
- * WC tested up to: 10.9.1
+ * WC tested up to: 11.2.1
  */
 
 if (!defined('ABSPATH')) {
